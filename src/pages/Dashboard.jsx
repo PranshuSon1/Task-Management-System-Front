@@ -1,19 +1,31 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchTasks } from '../features/taskSlice';
+import { fetchTasks, fetchTaskById, setSelectedTask } from '../features/taskSlice';
 import TaskForm from '../components/TaskForm';
 import ThemeToggle from '../components/ThemeToggle';
+import ViewTaskModal from '../components/ViewTaskModal';
 import { exportTasksToCSV } from '../utils/exportToCsv';
 import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const { tasks, isLoading, error } = useSelector((state) => state.tasks);
+  const { tasks, isLoading, error, selectedTask } = useSelector((state) => state.tasks);
   const { user, logout } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchTasks());
   }, [dispatch]);
+
+  const openTaskModal = (taskId) => {
+    dispatch(fetchTaskById(taskId));
+    setIsModalOpen(true);
+  };
+
+  const closeTaskModal = () => {
+    setIsModalOpen(false);
+    dispatch(setSelectedTask(null));
+  };
 
   const totalTasks = tasks.length;
   const highPriorityCount = tasks.filter((task) => task.priority === 'High').length;
@@ -97,9 +109,11 @@ const Dashboard = () => {
                     : 'bg-emerald-500';
 
                 return (
-                  <div
+                  <button
                     key={task._id}
-                    className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-900"
+                    type="button"
+                    onClick={() => openTaskModal(task._id)}
+                    className="w-full rounded-[1.75rem] border border-slate-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-900"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
@@ -111,15 +125,24 @@ const Dashboard = () => {
                       <span className={`tag-pill ${priorityColor}`}>{task.priority || 'Low'}</span>
                     </div>
                     <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+                      <span className={`rounded-full px-3 py-1 ${task.status === 'Completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300' : task.status === 'In Progress' ? 'bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'}`}>
+                        {task.status || 'Pending'}
+                      </span>
                       <span className="rounded-full bg-slate-100 px-3 py-1 dark:bg-slate-800">Due {dueDate}</span>
                     </div>
-                  </div>
+                  </button>
                 );
               })
             )}
           </div>
         )}
       </div>
+
+      <ViewTaskModal
+        isOpen={isModalOpen}
+        task={selectedTask}
+        onClose={closeTaskModal}
+      />
     </div>
   );
 };

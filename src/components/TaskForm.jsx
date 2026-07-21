@@ -35,6 +35,16 @@ const TaskForm = () => {
           {errors.title && <p className="mt-2 text-sm text-rose-600 dark:text-rose-400">{errors.title.message}</p>}
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">Description</label>
+          <textarea
+            {...register('description')}
+            rows="4"
+            className="input-field mt-2"
+            placeholder="Add any context, notes, or acceptance criteria"
+          />
+        </div>
+
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">Due Date</label>
