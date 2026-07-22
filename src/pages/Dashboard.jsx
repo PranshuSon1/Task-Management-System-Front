@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CheckCircle2, Circle, Clock3, FileDown, Flame, Inbox, LayoutDashboard, LogOut, MoonStar, Plus, Search, SunMedium, Sparkles } from 'lucide-react';
 import { fetchTasks, fetchTaskById, setSelectedTask } from '../features/taskSlice';
-import TaskForm from '../components/TaskForm';
 import ThemeToggle from '../components/ThemeToggle';
+import NewTaskModal from '../components/NewTaskModal';
 import ViewTaskModal from '../components/ViewTaskModal';
+// import QuickAddModal from '../components/QuickAddModal';
 import { exportTasksToCSV } from '../utils/exportToCsv';
 import { useAuth } from '../context/AuthContext';
 
@@ -14,6 +15,7 @@ const Dashboard = () => {
   const { user, logout } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchTasks());
@@ -118,6 +120,7 @@ const Dashboard = () => {
                   <FileDown className="h-4 w-4" /> Export CSV
                 </button>
                 <ThemeToggle />
+                
                 <button type="button" onClick={() => setShowCreate((value) => !value)} className="button-primary gap-2">
                   {showCreate ? <Circle className="h-4 w-4" /> : <Plus className="h-4 w-4" />} {showCreate ? 'Close' : 'New task'}
                 </button>
@@ -140,7 +143,7 @@ const Dashboard = () => {
             ))}
           </section>
 
-          {showCreate && <TaskForm onCancel={() => setShowCreate(false)} />}
+          <NewTaskModal isOpen={showCreate} onClose={() => setShowCreate(false)} />
 
           <section className="mt-6 rounded-[2rem] border border-slate-200 bg-white/90 p-5 shadow-[0_25px_60px_-24px_rgba(15,23,42,0.28)] backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/90">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -205,6 +208,7 @@ const Dashboard = () => {
       </div>
 
       <ViewTaskModal isOpen={isModalOpen} task={selectedTask} onClose={closeTaskModal} />
+      {/* <QuickAddModal isOpen={isQuickAddOpen} onClose={() => setIsQuickAddOpen(false)} /> */}
     </div>
   );
 };
